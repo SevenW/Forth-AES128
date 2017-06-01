@@ -1,7 +1,7 @@
 
 \ 128-bit AES CTR and AES CMAC as used in LoraWAN
 \ Author: SevenW from sevenwatt.com
-\ Date  : 2017-Feb-23
+\ Date  : 2017-Feb-28
 \ 
 \ Description:
 \ AES128 CTR en- and de-cryption of a stream buffer
@@ -105,12 +105,12 @@ false variable padding
 : cmac-calc ( buf len -- )
   padding over $0F and 0<> swap ! \ padding if len is not mulitple of 16.
   dup 1+ 0 do 
-  ( buf+i len-i ) over AESaux i $0F and + tuck ( . . auxaddr buf+i auxaddr ) c@ swap c@ xor swap c! \ xor aux and buf
   ( buf+i len-i ) dup 0= if
   ( buf+i len-i )   AESaux i $0F and +  dup c@ $80 xor swap c! \ xor last byte with $80
   ( buf+i len-i )   cmac-xor-k1k2 \ perform this for last byte in buffer
   ( buf+i len-i )   AESaux AESkey aes
   ( buf+i len-i ) else 
+  ( buf+i len-i )   over AESaux i $0F and + tuck ( . . auxaddr buf+i auxaddr ) c@ swap c@ xor swap c! \ xor aux and buf
   ( buf+i len-i )   i 1+ $0F and 0= if AESaux AESkey aes then \ mulitples of 16 bytes
   ( buf+i len-i ) then
   ( buf+i len-i ) 1- swap 1+ swap \ decrement len, increment pointer
